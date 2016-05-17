@@ -8,37 +8,41 @@ def sort_articles(zendesk_domain, email=None, password=None):
     sections = get_sections(zendesk_domain, email, password)
     categories = get_categories(zendesk_domain, email, password)
     categories_dict = {}
-    all_articles = []
-    articles_by_section = {}
-    articles_by_category = {}
+    all_articles = {}
     for category in categories['categories']:
         if "Cloud" in category['name']:
-            if not category['id'] in articles_by_category.keys():
-                articles_by_category[category['id']] = []
+            category_name = str(category['id']) + ' ' + category['name']
+            if not category_name in all_articles.keys():
+                all_articles[category_name] = {}
 
             for section in sections['sections']:
                 if section['category_id'] == category['id']:
+                    section_name = str(section['id']) + ' ' + section['name']
                     articles = get_articles(zendesk_domain, section['id'])
-                    if not (str(section['id']) + ' ' + section['name']) in articles_by_section.keys():
-                        articles_by_section[str(section['id']) + ' ' + section['name']] = []
+                    if not section_name in all_articles[category_name].keys():
+                        all_articles[category_name][section_name] = []
 
                     for article in articles['articles']:
-                        all_articles.append(article)
-                        articles_by_section[str(section['id']) + ' ' + section['name']].append(article)
-                        articles_by_category[category['id']].append(article)
+                        all_articles[category_name][section_name].append(article)
 
     f = open('metadata', 'w')
     f.write ('All articles = ')
-    for article in all_articles:
-        f.write(str(article['id']) + '|')
+    for category in all_articles.keys():
+        for section in all_articles[category].keys():
+            for article in all_articles[category][section]:
+                f.write(str(article['id']) + '|')
 
     f.write('\n')
-    for section in articles_by_section.keys():
-        f.write(section + ' = ')
-        for article in articles_by_section[section]:
-            f.write(str(article['id']) + '|')
 
-        f.write('\n')
+    for category in all_articles.keys():
+        for section in all_articles[category].keys():
+            f.write(category + ', ' + section + ' = ')
+            for article in all_articles[category][section]:
+                f.write(str(article['id']) + '|')
+
+            f.write('\n')
+
+    f.close
 
 def get_articles(zendesk_domain, section_id, email=None, password=None):
     session = requests.Session()
