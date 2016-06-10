@@ -4,7 +4,7 @@ import os
 import json
 from datetime import datetime
 
-def sort_articles(zendesk_domain, email=None, password=None):
+def sort_articles(zendesk_domain, file_name, email=None, password=None):
     sections = get_sections(zendesk_domain, email, password)
     categories = get_categories(zendesk_domain, email, password)
     categories_dict = {}
@@ -25,7 +25,7 @@ def sort_articles(zendesk_domain, email=None, password=None):
                     for article in articles['articles']:
                         all_articles[category_name][section_name].append(article)
 
-    f = open('metadata', 'w')
+    f = open(file_name, 'w')
     f.write ('All articles = ')
     for category in all_articles.keys():
         for section in all_articles[category].keys():
@@ -103,5 +103,5 @@ try:
     zendesk_domain = env['ZENDESK_URL']
 except:
     zendesk_domain = input("Enter the zendesk url: ")
-
-sort_articles(zendesk_domain, email, password)
+file_name = 'metadata.txt'
+sort_articles(zendesk_domain, file_name, email, password)
