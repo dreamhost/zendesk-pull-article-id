@@ -25,6 +25,8 @@ def sort_articles(zendesk_domain, file_name, email=None, password=None):
                     for article in articles['articles']:
                         all_articles[category_name][section_name].append(article)
 
+    print('writing to ' + file_name)
+
     f = open(file_name, 'w')
     f.write ('All articles = ')
     for category in all_articles.keys():
